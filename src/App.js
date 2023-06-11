@@ -55,13 +55,20 @@ function SignOut() {
   )
 }
 function ChatRoom() {
+  const dummy = useRef()
   const messagesRef = collection(db, 'messages')
-  const queryRef = query(messagesRef, orderBy('createdAt', 'desc'), limit(25));
+  const queryRef = query(messagesRef, orderBy('createdAt', 'asc'), limit(25));
   const [messages, loadingMessages, error] = useCollectionData(queryRef, { idField: 'id' });
   const [formValue, setFormValue] = useState('')
   
   const sendMessage = async(e) => {
     e.preventDefault();
+
+    // Check if formValue is empty
+    if (formValue.trim() === '') {
+      return; // Stop execution if the formValue is empty
+    }
+
     const {uid, photoURL} = authenticator.currentUser
     await addDoc(messagesRef,
       {
@@ -70,6 +77,7 @@ function ChatRoom() {
       uid,
       photoURL})
     setFormValue('')
+    dummy.current.scrollIntoView({behavior:'smooth'})
   }
 
   return (<>
@@ -78,12 +86,13 @@ function ChatRoom() {
         {messages && messages.map(msg => <ChatMessage key={msg.createdAt} message={msg} />)}
       </div>
 
-      <form onSubmit={sendMessage}>
+      <div ref={dummy}></div>
+    </main>
+
+    <form onSubmit={sendMessage}>
         <input value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder='Submit a message'/>
         <button type="submit">Send 😎</button>
-      </form>
-
-    </main>
+    </form>
 
   </>)
 }
