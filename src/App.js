@@ -13,13 +13,6 @@ import {useAuthState} from 'react-firebase-hooks/auth';
 import {useCollectionData} from 'react-firebase-hooks/firestore';
 
 initializeApp({
-  apiKey: "AIzaSyCcNEXKITqJWghfgMswPLmC2JG3ZlpfE7g",
-  authDomain: "llm-journal-ff02f.firebaseapp.com",
-  projectId: "llm-journal-ff02f",
-  storageBucket: "llm-journal-ff02f.appspot.com",
-  messagingSenderId: "951496233368",
-  appId: "1:951496233368:web:da7fd2a54c1f6be10e1bed",
-  measurementId: "G-LL8M17CV6D"
 })
 
 const authenticator = getAuth();
