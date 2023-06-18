@@ -25,6 +25,27 @@ initializeApp({
 const authenticator = getAuth();
 const db = getFirestore();
 
+async function sendTextToApi(text) {
+  const apiUrl = 'http://localhost:8080/api/ai_response';
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 'text': text })
+    });
+
+    const data = await response.json();
+    // Handle the response data
+    return data
+  } catch (error) {
+    // Handle the error
+    console.error(error);
+  }
+}
+
 
 function App() {
   const [user] = useAuthState(authenticator);
@@ -41,7 +62,6 @@ function App() {
     </div>
   );
 }
-
 function SignIn() {
   const useSignInWithGoogle = () =>{
     const provider = new GoogleAuthProvider();
@@ -58,8 +78,9 @@ function ChatRoom() {
   const dummy = useRef()
   const messagesRef = collection(db, 'messages')
   const queryRef = query(messagesRef, orderBy('createdAt', 'asc'), limit(25));
-  const [messages, loadingMessages, error] = useCollectionData(queryRef, { idField: 'id' });
+  const [messages, loadingMessages, error] = useCollectionData(queryRef);//, { idField: 'id' });
   const [formValue, setFormValue] = useState('')
+  
   
   const sendMessage = async(e) => {
     e.preventDefault();
@@ -77,6 +98,13 @@ function ChatRoom() {
       uid,
       photoURL})
     setFormValue('')
+    var response = await sendTextToApi(formValue)
+    await addDoc(messagesRef,
+      {
+      text:response,
+      createdAt: serverTimestamp(),
+      uid:"AI"
+    })
     dummy.current.scrollIntoView({behavior:'smooth'})
   }
 
@@ -101,12 +129,9 @@ function ChatRoom() {
 function ChatMessage(props) {
   const { text, uid, photoURL } = props.message;
   const messageClass = uid === authenticator.currentUser.uid ? 'sent' : 'received';
-
   return (<>
     <div className={`message ${messageClass}`}>
-      <img src={photoURL || 'https://api.dicebear.com/6.x/adventurer/svg?seed=Angel'} 
-        style={{ width: '100px', height: '100px' }}
-        />
+      <img src={photoURL || 'https://api.dicebear.com/6.x/bottts/svg?seed=Precious'} style={{ width: '100px', height: '100px' }}/>
       <p>{text}</p>
     </div>
   </>)
